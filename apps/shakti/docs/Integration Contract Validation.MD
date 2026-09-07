@@ -4,84 +4,108 @@
 
 ## Scope
 
-Validated the **Agent Selector ↔ Dashboard SDK integration contract** and its integration with the existing SHAKTI dashboard.
+Validated the **Agent Layer ↔ Universal Dashboard SDK** integration contract and its integration with the reusable dashboard platform.
 
-The validation focused on SDK exposure, registry interaction, capability access, zone selection, lifecycle handling, runtime graph/configuration generation, and backward compatibility.
+The platform consists of reusable dashboard packages consumed by SHAKTI and intended for future BHIV applications.
 
 ## Contract Checks
 
-| Contract                                 | Status |
-| ---------------------------------------- | ------ |
-| Agent Selector exported from SDK         | ✅ PASS |
-| Widget Registry integration              | ✅ PASS |
-| Product Layout Registry integration      | ✅ PASS |
-| Capability Runtime read-only access      | ✅ PASS |
-| Zone selection contract                  | ✅ PASS |
-| Lifecycle status contract                | ✅ PASS |
-| Runtime graph contract                   | ✅ PASS |
-| Runtime config export                    | ✅ PASS |
-| Backward-compatible dashboard fallback   | ✅ PASS |
-| Runtime/workflow execution from selector | ✅ PASS |
+| Contract                                             | Status |
+| ---------------------------------------------------- | ------ |
+| Agent Selector exported from Dashboard SDK           | ✅ PASS |
+| Widget Registry integration                          | ✅ PASS |
+| Product Layout Registry integration                  | ✅ PASS |
+| Capability Runtime read-only access                  | ✅ PASS |
+| Dashboard zone selection                             | ✅ PASS |
+| Lifecycle status handling                            | ✅ PASS |
+| Runtime graph generation                             | ✅ PASS |
+| Runtime configuration export                         | ✅ PASS |
+| Backward-compatible component fallback               | ✅ PASS |
+| Error/degraded state integration                     | ✅ PASS |
+| Runtime/workflow execution from selector             | ✅ PASS |
+| SHAKTI consumes reusable platform packages           | ✅ PASS |
+| Platform package independence from application layer | ✅ PASS |
 
-## Validation Details
+## Agent Layer Integration
 
-### 1. Agent Selector SDK Export
+The Agent Selector Layer is integrated as a **composition layer** inside the reusable Dashboard SDK.
 
-**Status: ✅ PASS**
+### Integration Flow
 
-Agent Selector is exposed through the reusable Dashboard SDK and can be consumed through the SDK integration layer.
+```text
+Dashboard Configuration
+        ↓
+Product / Layout Definition
+        ↓
+Agent Selector Layer
+        ↓
+Widget Registry
+        ↓
+Capability / Permission Validation
+        ↓
+Lifecycle Result
+        ↓
+Resolved Dashboard Component
+        ↓
+Dashboard Layout / Widget Runtime
+```
 
-### 2. Widget Registry Integration
+## Validated Responsibilities
 
-**Status: ✅ PASS**
+### Agent Selector
 
-Agent Selector consumes registered widget definitions and preserves compatibility with the existing WidgetRegistry component-resolution model.
+* Discovers available widgets/capabilities.
+* Resolves dependencies.
+* Validates compatibility.
+* Evaluates capability and permission constraints.
+* Resolves dashboard zones.
+* Produces lifecycle status.
+* Builds composition/runtime metadata.
+* Exports serializable runtime configuration.
 
-### 3. Product Layout Registry
+### Runtime Boundary
 
-**Status: ✅ PASS**
+The Agent Selector remains **composition-time only**.
 
-Product/layout structures are supported for composition-time zone resolution and validation.
+It does not:
 
-### 4. Capability Runtime Access
+* Execute workflows.
+* Poll backend services.
+* Activate or deactivate runtime capabilities.
+* Perform operational actions.
+* Replace the dashboard runtime.
+* Own backend execution.
 
-**Status: ✅ PASS**
+## Universal Reusability
 
-Agent Selector can evaluate capability availability through the capability runtime abstraction without taking responsibility for runtime execution.
+The platform follows the dependency direction:
 
-### 5. Zone Selection
+```text
+@bhiv/utils
+      ↓
+@bhiv/ui
+      ↓
+@bhiv/dashboard-sdk
+      ↓
+Application / Product
+```
 
-**Status: ✅ PASS**
+Reusable packages do not depend on `apps/shakti`.
 
-Dashboard zones can resolve their components through Agent Selector while retaining the existing component fallback.
+SHAKTI-specific backend/API logic remains in the application layer, allowing the same dashboard platform to support future BHIV applications.
 
-### 6. Lifecycle Status
+## Backward Compatibility
 
-**Status: ✅ PASS**
+Existing WidgetRegistry/component resolution remains available as a fallback.
 
-Selector lifecycle outcomes distinguish states such as resolved, capability-gated, unpermitted, unresolved, and deprecated.
-
-### 7. Runtime Graph & Configuration
-
-**Status: ✅ PASS**
-
-The selector provides composition-time runtime graph generation and runtime configuration export without executing the generated runtime configuration.
-
-### 8. Backward Compatibility
-
-**Status: ✅ PASS**
-
-Existing dashboard component resolution remains available as a fallback, reducing integration risk for existing SHAKTI dashboard zones.
-
-### 9. Runtime/Workflow Boundary
-
-**Status: ✅ PASS**
-
-The Agent Selector remains a composition-time component. It does not directly execute workflows, poll backend services, activate runtime capabilities, or perform operational actions.
+This allows existing dashboard zones to continue operating while the Agent Selector provides the composition layer.
 
 ## Final Decision
 
-**SDK integration contract: ✅ PASS**
+**SDK Integration Contract: ✅ PASS**
+
 **Agent Layer Integration: ✅ PASS**
 
+**Universal Reusable Platform Contract: ✅ VERIFIED**
 
+**Production Integration Contract: VERIFIED at implementation/integration level.
